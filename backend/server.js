@@ -5,15 +5,22 @@ const cors = require("cors");
 
 const app = express();
 app.use(express.json());
-app.use(cors("https://online-voting-1-il6u.onrender.com" ));
+
+// ✅ Fix CORS issue: Allow access from frontend
+app.use(cors({ origin: "https://online-voting-1-il6u.onrender.com" }));
+
 app.use(express.static("public"));
 
-// Connect to MongoDB
+// ✅ Connect to MongoDB with error handling
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}).then(() => console.log("Connected to MongoDB"))
-  .catch(err => console.error("MongoDB connection error:", err));
+}).then(() => {
+    console.log("Connected to MongoDB");
+    initializeCandidates(); // Ensure candidates are initialized after connection
+}).catch(err => {
+    console.error("MongoDB connection error:", err);
+});
 
 // Candidate Schema
 const candidateSchema = new mongoose.Schema({
@@ -30,7 +37,7 @@ const voterSchema = new mongoose.Schema({
 const Candidate = mongoose.model("Candidate", candidateSchema);
 const Voter = mongoose.model("Voter", voterSchema);
 
-// ✅ Initialize Candidates (Run only once)
+// ✅ Initialize Candidates (Runs only if database is empty)
 async function initializeCandidates() {
     const existingCandidates = await Candidate.find();
     if (existingCandidates.length === 0) {
@@ -42,7 +49,6 @@ async function initializeCandidates() {
         console.log("Candidates added to database");
     }
 }
-initializeCandidates();
 
 // ✅ Get Candidates (Without Votes)
 app.get("/candidates", async (req, res) => {
@@ -113,6 +119,6 @@ app.get("/admin-results", async (req, res) => {
     }
 });
 
-// Start Server
+// ✅ Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => console.log(`Server running on port ${PORT}`));
