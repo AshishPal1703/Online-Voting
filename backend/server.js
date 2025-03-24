@@ -5,7 +5,7 @@ const cors = require("cors");
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors("https://online-voting-1-il6u.onrender.com" ));
 app.use(express.static("public"));
 
 // Connect to MongoDB
