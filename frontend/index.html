@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Voting System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h1>College Voting System</h1>
+
+    <!-- Login Section -->
+    <div id="login">
+        <h2>Login to Vote</h2>
+        <input type="text" id="voterId" placeholder="Enter Voter ID" onkeypress="handleEnter(event)">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- Voting Section (Hidden initially) -->
+    <div id="votingSection" style="display: none;">
+        <h2>Vote for Your Candidate</h2>
+        <div id="candidates" class="candidate-container"></div>
+        <p id="message"></p>
+        <h3 id="votedMessage" style="color: blue;"></h3> <!-- Shows the voted candidate -->
+        <button onclick="goBack()" class="back-button">Go Back</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

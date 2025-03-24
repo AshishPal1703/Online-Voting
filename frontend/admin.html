@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            background: black;
+            color: white;
+        }
+
+        /* Sparkling Golden Stars Animation */
+        .stars {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: gold;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: twinkle 3s infinite ease-in-out alternate, moveStars 10s infinite linear;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes moveStars {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(30px); }
+        }
+
+        /* Stylish Results Table */
+        table {
+            width: 60%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            color: white;
+        }
+
+        th {
+            background-color: rgba(255, 215, 0, 0.8);
+            color: black;
+            font-size: 18px;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+        }
+
+        /* Winner Announcement */
+        #winner {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: gold;
+            display: none;
+            padding: 15px;
+            border-radius: 5px;
+            background: black;
+            text-shadow: 0 0 10px gold, 0 0 20px gold;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        /* Celebration Confetti */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: red;
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(720deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Election Results</h1>
+    
+    <!-- Golden Stars Background Effect -->
+    <div id="starsContainer"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Candidate</th>
+                <th>Votes</th>
+            </tr>
+        </thead>
+        <tbody id="resultsTable">
+        </tbody>
+    </table>
+
+    <div id="winner"></div>
+
+    <script>
+        let hasCelebrated = false; // Prevent multiple celebrations
+
+        async function fetchResults() {
+            try {
+                const response = await fetch("http://localhost:5000/admin-results");
+                const results = await response.json();
+
+                const tableBody = document.getElementById("resultsTable");
+                const winnerDiv = document.getElementById("winner");
+
+                tableBody.innerHTML = ""; // Clear old results
+                
+                let totalVotes = 0;
+                let highestVotes = 0;
+                let winner = "";
+
+                results.forEach(candidate => {
+                    totalVotes += candidate.votes;
+
+                    if (candidate.votes > highestVotes) {
+                        highestVotes = candidate.votes;
+                        winner = candidate.name;
+                    }
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${candidate.name}</td>
+                        <td>${candidate.votes}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Display winner & start celebration when votes reach 10
+                if (totalVotes >= 10 && !hasCelebrated) {
+                    winnerDiv.style.display = "block";
+                    winnerDiv.textContent = `Winner: ${winner} with ${highestVotes} votes 🎊🎉`;
+                    winnerDiv.style.transform = "scale(1.2)";
+                    startConfetti();
+                    hasCelebrated = true;
+                }
+            } catch (error) {
+                console.error("Failed to load results:", error);
+            }
+        }
+
+        function startConfetti() {
+            for (let i = 0; i < 100; i++) {
+                let confetti = document.createElement("div");
+                confetti.classList.add("confetti");
+                document.body.appendChild(confetti);
+
+                confetti.style.left = Math.random() * 100 + "vw";
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.animationDuration = Math.random() * 3 + 2 + "s";
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        function getRandomColor() {
+            const colors = ["#ff4757", "#1e90ff", "#2ed573", "#fffa65", "#7d5fff"];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // Generate sparkling stars
+        function createStars() {
+            const starsContainer = document.getElementById("starsContainer");
+
+            for (let i = 0; i < 300; i++) { 
+                let star = document.createElement("div");
+                star.classList.add("stars");
+                starsContainer.appendChild(star);
+
+                star.style.left = Math.random() * 100 + "vw";
+                star.style.top = Math.random() * 100 + "vh";
+                star.style.animationDuration = Math.random() * 3 + 2 + "s";
+                star.style.animationDelay = Math.random() * 3 + "s";
+                star.style.width = Math.random() * 3 + "px";
+                star.style.height = Math.random() * 3 + "px";
+            }
+        }
+
+        // Auto-refresh results every 5 seconds
+        setInterval(fetchResults, 5000);
+
+        createStars();
+        fetchResults();
+    </script>
+</body>
+</html>
