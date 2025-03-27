@@ -13,13 +13,17 @@
     <!-- Login Section -->
     <div id="login">
         <h2>Login to Vote</h2>
-        <input type="text" id="voterId" placeholder="Enter Voter ID" onkeypress="handleEnter(event)">
+        <input type="text" id="voterId" placeholder="Enter Voter ID">
         <button onclick="login()">Login</button>
     </div>
 
     <!-- Voting Section (Hidden initially) -->
     <div id="votingSection" style="display: none;">
         <h2>Vote for Your Candidate</h2>
+        
+        <!-- ✅ Candidate List Added -->
+        <ul id="candidate-list"></ul> 
+        
         <div id="candidates" class="candidate-container"></div>
         <p id="message"></p>
         <h3 id="votedMessage" style="color: blue;"></h3> <!-- Shows the voted candidate -->
@@ -27,5 +31,14 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // ✅ Handle login when pressing "Enter" key
+        document.getElementById("voterId").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                login();
+            }
+        });
+    </script>
+
 </body>
 </html>
