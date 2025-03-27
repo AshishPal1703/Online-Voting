@@ -1,35 +1,48 @@
 const API_URL = "http://localhost:5000";
 let votedCandidate = null;
 
-// Handle login when pressing "Enter" key
-document.getElementById("voterId").addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-        login();
-    }
+// Ensure page is fully loaded before attaching event listeners
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("voterId").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            login();
+        }
+    });
+
+    fetchCandidates();
 });
 
-// Login Function
+// ✅ Login Function
 function login() {
     let voterId = document.getElementById("voterId").value.trim();
-    if (voterId !== "") {
-        document.getElementById("login").style.display = "none";
-        document.getElementById("votingSection").style.display = "block";
-        checkUserVote(voterId); // Check if the user already voted
-        fetchCandidates(); // Fetch candidates after login
-    } else {
+    if (!voterId) {
         alert("Please enter a valid Voter ID");
+        return;
     }
+
+    document.getElementById("login").style.display = "none";
+    document.getElementById("votingSection").style.display = "block";
+
+    checkUserVote(voterId); // Check if the user has already voted
+    fetchCandidates(); // Fetch candidates after login
 }
 
-// Fetch Candidates
+// ✅ Fetch Candidates
 async function fetchCandidates() {
     try {
         const response = await fetch(`${API_URL}/candidates`);
         if (!response.ok) throw new Error("Failed to fetch candidates");
 
         const candidates = await response.json();
-        const candidatesDiv = document.getElementById("candidates");
-        candidatesDiv.innerHTML = ""; // Clear previous candidates
+        console.log("Fetched candidates:", candidates);
+
+        let candidatesDiv = document.getElementById("candidates");
+        if (!candidatesDiv) {
+            console.error("Error: Element with ID 'candidates' not found!");
+            return;
+        }
+
+        candidatesDiv.innerHTML = ""; // Clear previous entries
 
         candidates.forEach(candidate => {
             const candidateDiv = document.createElement("div");
@@ -42,9 +55,7 @@ async function fetchCandidates() {
         });
 
         // Disable buttons if the user has already voted
-        if (votedCandidate) {
-            disableVotingButtons();
-        }
+        if (votedCandidate) disableVotingButtons();
 
     } catch (error) {
         console.error("Error loading candidates:", error);
@@ -52,7 +63,7 @@ async function fetchCandidates() {
     }
 }
 
-// Vote Function
+// ✅ Vote Function
 async function vote(candidateName) {
     let voterId = document.getElementById("voterId").value;
 
@@ -75,11 +86,8 @@ async function vote(candidateName) {
             alert(`Vote successfully recorded for ${candidateName}!`);
             document.getElementById("votedMessage").innerText = `You voted for: ${votedCandidate}`;
 
-            // Disable all voting buttons after voting
             disableVotingButtons();
-
-            // Redirect to login page after 2 seconds
-            setTimeout(resetToLogin, 2000);
+            setTimeout(resetToLogin, 2000); // Redirect after 2 seconds
         } else {
             alert(`Error: ${data.error}`);
         }
@@ -89,7 +97,7 @@ async function vote(candidateName) {
     }
 }
 
-// Check if the voter has already voted
+// ✅ Check if User Already Voted
 async function checkUserVote(voterId) {
     try {
         const response = await fetch(`${API_URL}/check-vote?voterId=${voterId}`);
@@ -98,8 +106,6 @@ async function checkUserVote(voterId) {
         if (data.voted) {
             votedCandidate = data.candidate;
             document.getElementById("votedMessage").innerText = `You voted for: ${votedCandidate}`;
-
-            // Disable voting buttons since user has already voted
             disableVotingButtons();
         }
     } catch (error) {
@@ -107,21 +113,16 @@ async function checkUserVote(voterId) {
     }
 }
 
-// Function to disable all vote buttons
+// ✅ Disable Voting Buttons
 function disableVotingButtons() {
     document.querySelectorAll(".vote-btn").forEach(btn => {
         btn.disabled = true;
-        btn.style.opacity = "0.5"; // Visual feedback
+        btn.style.opacity = "0.5";
         btn.style.cursor = "not-allowed";
     });
 }
 
-// Function to go back to the login page
-function goBack() {
-    resetToLogin();
-}
-
-// Function to reset to login page
+// ✅ Reset to Login Page
 function resetToLogin() {
     document.getElementById("voterId").value = "";
     document.getElementById("votedMessage").innerText = "";
@@ -131,4 +132,7 @@ function resetToLogin() {
     document.getElementById("login").style.display = "block";
 }
 
-// Fetch candidates only when needed
+// ✅ Go Back to Login Page
+function goBack() {
+    resetToLogin();
+}
