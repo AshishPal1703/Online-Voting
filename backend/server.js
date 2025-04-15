@@ -8,7 +8,7 @@ app.use(express.json());
 
 // ✅ Fix CORS issue: Allow access from frontend
 app.use(cors({ 
-    origin: ["https://online-voting-1-bxv0.onrender.com", "http://127.0.0.1:5500"],
+    origin: ["https://online-voting-1-bxv0.onrender.com", "https://online-voting-5trq.onrender.com","http://127.0.0.1:5500"],
     credentials: true
 }));
 
